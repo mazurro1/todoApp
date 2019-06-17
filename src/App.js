@@ -23,7 +23,10 @@ export default class App extends React.Component {
     email: 'em',
     ipAdress: 'ip',
     allUsers: arrayUsers,
-    validate: { nickname: true, email: true, ipAdress: true },
+    validate: { nickname: false, email: false, ipAdress: false },
+    nicknameProblem: '',
+    emailProblem: '',
+    ipAdressProblem: '',
   }
 
 
@@ -35,27 +38,97 @@ export default class App extends React.Component {
   }
 
   handleAddToArray = e => {
+    const { nickname, email, ipAdress } = this.state;
     e.preventDefault();
     let newArrayUsers = arrayUsers;
     let newObject = {
       id: arrayUsers.length,
-      nickname: this.state.nickname,
-      email: this.state.email,
-      ipAdress: this.state.ipAdress,
+      nickname: nickname,
+      email: email,
+      ipAdress: ipAdress,
     }
 
-    if (this.state.nickname && this.state.email && this.state.ipAdress) {
+    if (nickname && email && ipAdress) {
 
-      // walidacja
+      // walidation
 
-      newArrayUsers.push(newObject);
-      this.setState(prevState => ({
-        allUsers: newArrayUsers,
-        nickname: '',
-        email: '',
-        ipAdress: '',
-        validate: { nickname: prevState.nickname, email: !prevState.email, ipAdress: prevState.ipAdress }
-      }))
+      if (nickname.length >= 3) {
+        //nickname validate
+        this.setState(prevState => ({
+          validate: { nickname: true, email: prevState.validate.email, ipAdress: prevState.validate.ipAdress },
+          nicknameProblem: 'Nickname ok'
+        }))
+        //email validate
+        const dotValidation = email.lastIndexOf('.');
+        let isEmailBusy = true;
+        console.log(dotValidation);
+        console.log(email.length);
+        for (let i = 0; i < this.state.allUsers.length; i++) {
+          if (email === this.state.allUsers[i].email) {
+            isEmailBusy = false;
+          }
+        }
+        if (email.includes('@') && dotValidation > 0 && (email.length - 3 === dotValidation || email.length - 4 === dotValidation) && isEmailBusy) {
+
+          this.setState(prevState => ({
+            validate: { nickname: prevState.validate.nickname, email: true, ipAdress: prevState.validate.ipAdress },
+            emailProblem: 'Email ok',
+          }))
+          const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+          if (ipAdress.match(ipformat)) {
+            //ip adress validate
+            this.setState(prevState => ({
+              validate: { nickname: prevState.validate.nickname, email: prevState.validate.email, ipAdress: true },
+              nickname: '',
+              email: '',
+              ipAdress: '',
+              allUsers: newArrayUsers,
+              ipAdressProblem: 'Ip adress ok',
+            }))
+            newArrayUsers.push(newObject);
+          } else {
+            //ipAdress problems
+            this.setState(prevState => ({
+              validate: { nickname: prevState.validate.nickname, email: prevState.validate.email, ipAdress: false },
+              ipAdressProblem: 'Nieodpowiedni format adresu IP',
+            }))
+          }
+        } else {
+          //email problems
+          let emailFail = '';
+          if (isEmailBusy) {
+            if (email.includes('@')) {
+              if (email.includes('.')) {
+                if (email.length >= 5) {
+                  if (email.length > dotValidation + 1) {
+
+                    emailFail = 'Zła końcówka';
+                  } else {
+                    emailFail = 'Brak końcówki';
+                  }
+                } else {
+                  emailFail = 'Adres email jest za krótki';
+                }
+              } else {
+                emailFail = 'Brak kropki w adresie email';
+              }
+            } else {
+              emailFail = 'Brak @ w adresie email';
+            }
+          } else {
+            emailFail = 'Adres email jest zajęty';
+          }
+          this.setState(prevState => ({
+            validate: { nickname: prevState.validate.nickname, email: false, ipAdress: prevState.validate.ipAdress },
+            emailProblem: emailFail,
+          }))
+        }
+      } else {
+        //nickname problems
+        this.setState(prevState => ({
+          validate: { nickname: false, email: prevState.validate.email, ipAdress: prevState.validate.ipAdress },
+        }))
+      }
 
     }
   }
@@ -69,7 +142,7 @@ export default class App extends React.Component {
   }
 
   render() {
-
+    console.log(this.state.emailProblem)
     return (
       <div className="container">
         <FormIp
