@@ -2,26 +2,30 @@ import React from 'react';
 import './style/App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+const arrayUsers = [
+  {
+    id: 0,
+    nickname: 'Hubert',
+    email: 'mazul96.hm@gmail.com',
+    ipAdress: '123.456.789',
+  },
+  {
+    id: 1,
+    nickname: 'Milena',
+    email: 'mazul96.hm@gmail.com',
+    ipAdress: '123.456.789',
+  },
+]
+
 export default class App extends React.Component {
   state = {
     nickname: 'nick',
     email: 'em',
     ipAdress: 'ip',
-    allUsers: [
-      {
-        id: 0,
-        nickname: 'Hubert',
-        email: 'mazul96.hm@gmail.com',
-        ipAdress: '123.456.789'
-      },
-      {
-        id: 1,
-        nickname: 'Milena',
-        email: 'mazul96.hm@gmail.com',
-        ipAdress: '123.456.789'
-      },
-    ]
+    allUsers: arrayUsers,
   }
+
+
 
   handleChange = e => {
     this.setState({
@@ -29,7 +33,24 @@ export default class App extends React.Component {
     })
   }
 
+  handleAddToArray = e => {
+    e.preventDefault();
+    let newArrayUsers = arrayUsers;
+    let newObject = {
+      id: arrayUsers.length,
+      nickname: this.state.nickname,
+      email: this.state.email,
+      ipAdress: this.state.ipAdress,
+    }
+
+    newArrayUsers.push(newObject);
+    this.setState({
+      allUsers: newArrayUsers,
+    })
+  }
+
   render() {
+    console.log(this.state.allUsers);
     return (
       <div className="container">
         <FormIp
@@ -37,6 +58,7 @@ export default class App extends React.Component {
           email={this.state.email}
           ipAdress={this.state.ipAdress}
           handleChange={this.handleChange}
+          handleAddToArray={this.handleAddToArray}
         />
         {CreateTable(this.state.allUsers)}
       </div>
@@ -46,10 +68,10 @@ export default class App extends React.Component {
 
 
 const FormIp = props => {
-  const { nickname, email, ipAdress, handleChange } = props;
+  const { nickname, email, ipAdress, handleChange, handleAddToArray } = props;
   return (
     <>
-      <form action="">
+      <form onSubmit={handleAddToArray}>
         <input type="text" name={'nickname'} value={nickname} onChange={handleChange} /><br />
         <input type="text" name={'email'} value={email} onChange={handleChange} /><br />
         <input type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} /><br />
