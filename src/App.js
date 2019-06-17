@@ -2,7 +2,7 @@ import React from 'react';
 import './style/App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-const arrayUsers = [
+let arrayUsers = [
   {
     id: 0,
     nickname: 'Hubert',
@@ -12,7 +12,7 @@ const arrayUsers = [
   {
     id: 1,
     nickname: 'Milena',
-    email: 'mazul96.hm@gmail.com',
+    email: 'milena@gmail.com',
     ipAdress: '123.456.789',
   },
 ]
@@ -23,6 +23,7 @@ export default class App extends React.Component {
     email: 'em',
     ipAdress: 'ip',
     allUsers: arrayUsers,
+    validate: { nickname: true, email: true, ipAdress: true },
   }
 
 
@@ -43,14 +44,32 @@ export default class App extends React.Component {
       ipAdress: this.state.ipAdress,
     }
 
-    newArrayUsers.push(newObject);
+    if (this.state.nickname && this.state.email && this.state.ipAdress) {
+
+      // walidacja
+
+      newArrayUsers.push(newObject);
+      this.setState(prevState => ({
+        allUsers: newArrayUsers,
+        nickname: '',
+        email: '',
+        ipAdress: '',
+        validate: { nickname: prevState.nickname, email: !prevState.email, ipAdress: prevState.ipAdress }
+      }))
+
+    }
+  }
+
+  handleDeleteUser = (e, email) => {
+    const newArrayUserFilter = arrayUsers.filter(user => user.email !== email);
+    arrayUsers = newArrayUserFilter;
     this.setState({
-      allUsers: newArrayUsers,
+      allUsers: newArrayUserFilter,
     })
   }
 
   render() {
-    console.log(this.state.allUsers);
+
     return (
       <div className="container">
         <FormIp
@@ -60,7 +79,7 @@ export default class App extends React.Component {
           handleChange={this.handleChange}
           handleAddToArray={this.handleAddToArray}
         />
-        {CreateTable(this.state.allUsers)}
+        {CreateTable(this.state.allUsers, this.handleDeleteUser)}
       </div>
     );
   }
@@ -73,7 +92,7 @@ const FormIp = props => {
     <>
       <form onSubmit={handleAddToArray}>
         <input type="text" name={'nickname'} value={nickname} onChange={handleChange} /><br />
-        <input type="text" name={'email'} value={email} onChange={handleChange} /><br />
+        <input name={'email'} value={email} onChange={handleChange} /><br />
         <input type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} /><br />
         <button>Add user</button>
       </form>
@@ -81,20 +100,21 @@ const FormIp = props => {
   )
 }
 
-const CreateTable = allUsers => {
+const CreateTable = (allUsers, handleDeleteUser) => {
   const users = allUsers.map(user =>
     <CreateUser
       key={user.id}
       nickname={user.nickname}
       email={user.email}
       ipAdress={user.ipAdress}
+      handleDeleteUser={handleDeleteUser}
     />
   )
   return users;
 }
 
 const CreateUser = props => {
-  const { nickname, email, ipAdress } = props;
+  const { nickname, email, ipAdress, handleDeleteUser } = props;
 
   return (
     <div className='row'>
@@ -104,8 +124,11 @@ const CreateUser = props => {
       <div className='col-4'>
         {email}
       </div>
-      <div className='col-4'>
+      <div className='col-3'>
         {ipAdress}
+      </div>
+      <div className='col-1'>
+        <button onClick={(e) => handleDeleteUser(e, email)}>x</button>
       </div>
     </div>
   )
