@@ -10,20 +10,7 @@ let arrayUsers = [
     ipAdress: '0.0.0.0',
     comfirmDelete: false,
   },
-  {
-    id: 1,
-    nickname: 'Milena',
-    email: 'milena@gmail.com',
-    ipAdress: '255.255.255.255',
-    comfirmDelete: false,
-  },
-  {
-    id: 2,
-    nickname: 'Zdzisiek',
-    email: 'zdzisiek@gmail.com',
-    ipAdress: '192.169.0.1',
-    comfirmDelete: false,
-  },
+
 ]
 
 export default class App extends React.Component {
@@ -53,7 +40,7 @@ export default class App extends React.Component {
     let nicknameError = '';
     let nicknameValidation = false;
 
-    if (nickname.length > 3) {
+    if (nickname.length >= 3) {
       nicknameError = 'Nickname ok';
       nicknameValidation = true;
       if (nickname.includes(' ')) {
