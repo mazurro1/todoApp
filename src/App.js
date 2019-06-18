@@ -125,7 +125,7 @@ export default class App extends React.Component {
     if (ipAdress.length !== 0) {
 
       if (ipAdress.match(ipformat)) {
-        ipAdressError = 'Adres IP ok';
+        ipAdressError = 'IP Adress ok';
         ipAdressValidation = true;
 
         for (let i = 0; i < this.state.allUsers.length; i++) {
@@ -150,8 +150,12 @@ export default class App extends React.Component {
         email: email,
         ipAdress: ipAdress,
       }
-      arrayUsers.push(newObject);
+
+      let newArray = arrayUsers;
+      newArray.push(newObject);
+
       this.setState({
+        allUsers: newArray,
         nickname: '',
         email: '',
         ipAdress: '',
@@ -174,9 +178,19 @@ export default class App extends React.Component {
     })
   }
 
-  render() {
-    const { ipAdress, email, nickname, validateError } = this.state;
+  handleDeleteAll = () => {
+    arrayUsers = [];
 
+    this.setState({
+      allUsers: arrayUsers,
+    })
+
+
+  }
+
+  render() {
+
+    const { ipAdress, email, nickname, validateError } = this.state;
     return (
       <div className="container">
         <FormIp
@@ -189,6 +203,11 @@ export default class App extends React.Component {
 
         />
         {CreateTable(this.state.allUsers, this.handleDeleteUser)}
+        {/* BUTTON TO DELETE ALL */}
+        {arrayUsers.length !== 0 ?
+          <button onClick={() => this.handleDeleteAll()}>Delete all</button>
+          : null
+        }
       </div>
     );
   }
@@ -198,6 +217,34 @@ export default class App extends React.Component {
 const FormIp = props => {
   const { nickname, email, ipAdress, handleChange, handleOnSubmit, validateError } = props;
 
+  const classBorder = (name) => {
+    if (validateError[name] === '') {
+      return '';
+    } else if (validateError[name].toLowerCase() === `${name.toLowerCase()} ok`) {
+      return 'green';
+    } else {
+      return 'red';
+    }
+  }
+
+  const classIP = () => {
+    if (validateError.ipAdress === '') {
+      return '';
+    } else if (validateError.ipAdress.toLowerCase() === 'ip adress ok') {
+      return 'green';
+    } else {
+      return 'red';
+    }
+  }
+
+  const disabledButton = () => {
+    if (nickname && email && ipAdress) {
+      return false;
+    } else {
+      return true;
+    }
+
+  }
   return (
     <>
       <form onSubmit={handleOnSubmit}>
@@ -206,7 +253,7 @@ const FormIp = props => {
             Nickname:
           </div>
           <div className="col-12">
-            <input id="nickname" type="text" name={'nickname'} value={nickname} onChange={handleChange} />
+            <input id="nickname" type="text" name={'nickname'} value={nickname} onChange={handleChange} className={classBorder('nickname')} />
             {validateError.nickname}
           </div>
         </label>
@@ -215,7 +262,7 @@ const FormIp = props => {
             Email:
           </div>
           <div className="col-12">
-            <input id="email" name={'email'} value={email} onChange={handleChange} className="green" />
+            <input id="email" name={'email'} value={email} onChange={handleChange} className={classBorder('email')} />
             {validateError.email}
           </div>
         </label>
@@ -224,11 +271,11 @@ const FormIp = props => {
             IP adress:
           </div>
           <div className="col-12">
-            <input id="ipAdress" type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} />
+            <input id="ipAdress" type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} className={classIP()} />
             {validateError.ipAdress}
           </div>
         </label>
-        <button type="submit">Add user</button>
+        <button type="submit" disabled={disabledButton()}>Add user</button>
       </form>
     </>
   )
@@ -251,6 +298,7 @@ const CreateUser = props => {
   const { nickname, email, ipAdress, handleDeleteUser } = props;
 
   return (
+
     <div className='row'>
       <div className='col-4'>
         {nickname}
@@ -265,5 +313,7 @@ const CreateUser = props => {
         <button onClick={(e) => handleDeleteUser(e, email)}>x</button>
       </div>
     </div>
+
+
   )
 }
