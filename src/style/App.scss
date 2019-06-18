@@ -1,15 +1,21 @@
-// .bodyBg{
-//     background-color: rgb(22, 25, 32);
-// }
-
+.bodyBg{
+    background-color: rgba(22, 25, 32, 0.1);
+}
+.formIn{
+    margin-top: 50px;
+    border-radius: 20px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0px 0px 24px 10px rgba(0,0,0,0.2);
 form{
 
+    margin-bottom: 50px;
     label{
         padding: 2vh 0px;
         font-size: 1.2rem;
         // background-color: rgba(255,255,255,0.1);
         border-radius: 20px;
-        margin: 20px;
+        margin: 0px;
         color: rgba(0,0,0,0.8);
         font-weight:500;
         
@@ -43,4 +49,12 @@ form{
         border: 2px solid red;
        }
 }
+}}
+
+.btn{
+    margin: 0px 5px;
+}
+
+.bigBtn{
+    width: 106px;
 }

@@ -8,18 +8,21 @@ let arrayUsers = [
     nickname: 'Hubert',
     email: 'mazul96.hm@gmail.com',
     ipAdress: '0.0.0.0',
+    comfirmDelete: false,
   },
   {
     id: 1,
     nickname: 'Milena',
     email: 'milena@gmail.com',
     ipAdress: '255.255.255.255',
+    comfirmDelete: false,
   },
   {
     id: 2,
     nickname: 'Zdzisiek',
     email: 'zdzisiek@gmail.com',
     ipAdress: '192.169.0.1',
+    comfirmDelete: false,
   },
 ]
 
@@ -31,6 +34,7 @@ export default class App extends React.Component {
     allUsers: arrayUsers,
     validateError: { nickname: '', email: '', ipAdress: '' },
     validate: { nickname: false, email: false, ipAdress: false },
+    deleteAll: false,
   }
 
 
@@ -170,6 +174,32 @@ export default class App extends React.Component {
     }
   }
 
+  handleSelectDeleteUser = (id) => {
+    let newArrayUserToDelete = arrayUsers;
+    if (newArrayUserToDelete[id].comfirmDelete) {
+      newArrayUserToDelete[id].comfirmDelete = false;
+
+    } else {
+      newArrayUserToDelete[id].comfirmDelete = true;
+    }
+    this.setState({
+      allUsers: newArrayUserToDelete,
+    })
+  }
+
+  handleDeleteGoBack = (id) => {
+    let newArrayUserToDelete = arrayUsers;
+    if (newArrayUserToDelete[id].comfirmDelete) {
+      newArrayUserToDelete[id].comfirmDelete = false;
+
+    } else {
+      newArrayUserToDelete[id].comfirmDelete = true;
+    }
+    this.setState({
+      allUsers: newArrayUserToDelete,
+    })
+  }
+
   handleDeleteUser = (e, email) => {
     const newArrayUserFilter = arrayUsers.filter(user => user.email !== email);
     arrayUsers = newArrayUserFilter;
@@ -178,40 +208,73 @@ export default class App extends React.Component {
     })
   }
 
+
   handleDeleteAll = () => {
     arrayUsers = [];
-
     this.setState({
       allUsers: arrayUsers,
     })
-
-
   }
+
+
+  handleSelectDeleteAll = () => {
+    this.setState(prevState => ({
+      deleteAll: !prevState.deleteAll
+    }))
+  }
+
+
+  handleNoDeleteAll = () => {
+    this.setState(prevState => ({
+      deleteAll: !prevState.deleteAll
+    }))
+  }
+
 
   render() {
 
-    const { ipAdress, email, nickname, validateError } = this.state;
+    const { ipAdress, email, nickname, validateError, allUsers, deleteAll } = this.state;
     return (
       <div className="container">
-        <FormIp
-          nickname={nickname}
-          email={email}
-          ipAdress={ipAdress}
-          handleChange={this.handleChange}
-          handleOnSubmit={this.handleOnSubmit}
-          validateError={validateError}
+        <div className="formIn">
+          <FormIp
+            nickname={nickname}
+            email={email}
+            ipAdress={ipAdress}
+            handleChange={this.handleChange}
+            handleOnSubmit={this.handleOnSubmit}
+            validateError={validateError}
 
-        />
-        {CreateTable(this.state.allUsers, this.handleDeleteUser)}
+          />
+        </div>
+        <table className="table table-striped table-dark mt-4">
+          <thead>
+            <tr>
+              <th scope="col">Nickname</th>
+              <th scope="col">Email</th>
+              <th scope="col">IP Adress</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {CreateTable(allUsers, this.handleDeleteUser, this.handleSelectDeleteUser, this.handleDeleteGoBack)}
+          </tbody>
+        </table>
         {/* BUTTON TO DELETE ALL */}
         {arrayUsers.length !== 0 ?
-          <button onClick={() => this.handleDeleteAll()}>Delete all</button>
+          <DeleteAll
+            handleDeleteAll={this.handleDeleteAll}
+            handleSelectDeleteAll={this.handleSelectDeleteAll}
+            deleteAll={deleteAll}
+            handleNoDeleteAll={this.handleNoDeleteAll}
+          />
           : null
         }
       </div>
     );
   }
 }
+
 
 
 const FormIp = props => {
@@ -275,45 +338,83 @@ const FormIp = props => {
             {validateError.ipAdress}
           </div>
         </label>
-        <button type="submit" disabled={disabledButton()}>Add user</button>
+        <button type="submit" disabled={disabledButton()} className="btn btn-dark">Add user</button>
       </form>
+
     </>
   )
 }
 
-const CreateTable = (allUsers, handleDeleteUser) => {
-  const users = allUsers.map(user =>
+const CreateTable = (allUsers, handleDeleteUser, handleSelectDeleteUser, handleDeleteGoBack) => {
+  const users = allUsers.map((user, index) =>
     <CreateUser
       key={user.id}
+      id={index}
       nickname={user.nickname}
       email={user.email}
       ipAdress={user.ipAdress}
       handleDeleteUser={handleDeleteUser}
+      handleSelectDeleteUser={handleSelectDeleteUser}
+      comfirmDelete={user.comfirmDelete}
+      handleDeleteGoBack={handleDeleteGoBack}
     />
   )
   return users;
 }
 
 const CreateUser = props => {
-  const { nickname, email, ipAdress, handleDeleteUser } = props;
+  const { nickname, email, ipAdress, handleDeleteUser, handleSelectDeleteUser, comfirmDelete, id, handleDeleteGoBack } = props;
 
   return (
+    <>
+      <tr>
+        <td>{nickname}</td>
+        <td>{email}</td>
+        <td>{ipAdress}</td>
+        <td>
+          {comfirmDelete ?
+            <ButtonsToDelete
+              handleDeleteUser={handleDeleteUser}
+              email={email}
+              id={id}
+              handleDeleteGoBack={handleDeleteGoBack}
+            />
+            : <button onClick={() => handleSelectDeleteUser(id)} className="btn btn-secondary bigBtn">x</button>}
+        </td>
+      </tr>
 
-    <div className='row'>
-      <div className='col-4'>
-        {nickname}
-      </div>
-      <div className='col-4'>
-        {email}
-      </div>
-      <div className='col-3'>
-        {ipAdress}
-      </div>
-      <div className='col-1'>
-        <button onClick={(e) => handleDeleteUser(e, email)}>x</button>
-      </div>
-    </div>
+    </>
+  )
+}
 
 
+const ButtonsToDelete = ({ email, handleDeleteUser, handleDeleteGoBack, id }) => {
+  return (
+    <>
+      <button onClick={(e) => handleDeleteUser(e, email)} className="btn btn-danger">Yes</button>
+      <button onClick={() => handleDeleteGoBack(id)} className="btn btn-danger">No</button>
+    </>
+  )
+}
+
+const DeleteAll = ({ handleDeleteAll, handleSelectDeleteAll, deleteAll, handleNoDeleteAll }) => {
+  return (
+    <>
+      {!deleteAll ?
+        <button onClick={() => handleSelectDeleteAll()} className="btn btn-dark">Delete all</button>
+        : <ComfirmeDeleteAll
+          handleDeleteAll={handleDeleteAll}
+          handleNoDeleteAll={handleNoDeleteAll}
+        />}
+    </>
+  )
+}
+
+const ComfirmeDeleteAll = ({ handleDeleteAll, handleNoDeleteAll }) => {
+  return (
+    <>
+      <button onClick={() => handleDeleteAll()} className="btn btn-danger">Yes</button>
+      <button onClick={() => handleNoDeleteAll()} className="btn btn-danger">No</button>
+    </>
   )
 }
