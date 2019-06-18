@@ -1,0 +1,43 @@
+// .bodyBg{
+//     background-color: rgb(22, 25, 32);
+// }
+
+form{
+
+    label{
+        padding: 2vh 0px;
+        font-size: 1.2rem;
+        // background-color: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        margin: 20px;
+        color: rgba(0,0,0,0.8);
+        font-weight:500;
+        
+    
+        input{
+            // border: none;
+            
+            border-radius: 5px;
+            border: 2px solid rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            background-color: white;
+            outline-color: rgba(0,0,0,0.0);
+            transition-property: background-color, border-bottom;
+            transition-duration: 0.5s;
+            transition-timing-function: ease;
+            font-size: 1.1rem;
+            margin-right: 10px;
+
+            &:focus{
+                // background-color: rgba(0,0,0,0.1);
+                // border-bottom: 2px solid rgba(0,0,0,1);
+                background-color: white;
+            }
+           
+
+    }
+    .green{
+        border: 2px solid green;
+       }
+}
+}

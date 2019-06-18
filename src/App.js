@@ -7,129 +7,162 @@ let arrayUsers = [
     id: 0,
     nickname: 'Hubert',
     email: 'mazul96.hm@gmail.com',
-    ipAdress: '123.456.789',
+    ipAdress: '0.0.0.0',
   },
   {
     id: 1,
     nickname: 'Milena',
     email: 'milena@gmail.com',
-    ipAdress: '123.456.789',
+    ipAdress: '255.255.255.255',
+  },
+  {
+    id: 2,
+    nickname: 'Zdzisiek',
+    email: 'zdzisiek@gmail.com',
+    ipAdress: '192.169.0.1',
   },
 ]
 
 export default class App extends React.Component {
   state = {
-    nickname: 'nick',
-    email: 'em',
-    ipAdress: 'ip',
+    nickname: '',
+    email: '',
+    ipAdress: '',
     allUsers: arrayUsers,
+    validateError: { nickname: '', email: '', ipAdress: '' },
     validate: { nickname: false, email: false, ipAdress: false },
-    nicknameProblem: '',
-    emailProblem: '',
-    ipAdressProblem: '',
   }
 
 
 
-  handleChange = e => {
+  handleChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
     })
   }
 
-  handleAddToArray = e => {
-    const { nickname, email, ipAdress } = this.state;
+  handleOnSubmit = e => {
     e.preventDefault();
-    let newArrayUsers = arrayUsers;
-    let newObject = {
-      id: arrayUsers.length,
-      nickname: nickname,
-      email: email,
-      ipAdress: ipAdress,
-    }
+    const { nickname, email, ipAdress } = this.state;
 
-    if (nickname && email && ipAdress) {
+    //NICKNAME
+    let nicknameError = '';
+    let nicknameValidation = false;
 
-      // walidation
+    if (nickname.length > 3) {
+      nicknameError = 'Nickname ok';
+      nicknameValidation = true;
+      if (nickname.includes(' ')) {
+        nicknameError = 'Nie mozna spacji';
+        nicknameValidation = false;
 
-      if (nickname.length >= 3) {
-        //nickname validate
-        this.setState(prevState => ({
-          validate: { nickname: true, email: prevState.validate.email, ipAdress: prevState.validate.ipAdress },
-          nicknameProblem: 'Nickname ok'
-        }))
-        //email validate
-        const dotValidation = email.lastIndexOf('.');
-        let isEmailBusy = true;
-        console.log(dotValidation);
-        console.log(email.length);
-        for (let i = 0; i < this.state.allUsers.length; i++) {
-          if (email === this.state.allUsers[i].email) {
-            isEmailBusy = false;
-          }
-        }
-        if (email.includes('@') && dotValidation > 0 && (email.length - 3 === dotValidation || email.length - 4 === dotValidation) && isEmailBusy) {
 
-          this.setState(prevState => ({
-            validate: { nickname: prevState.validate.nickname, email: true, ipAdress: prevState.validate.ipAdress },
-            emailProblem: 'Email ok',
-          }))
-          const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-          if (ipAdress.match(ipformat)) {
-            //ip adress validate
-            this.setState(prevState => ({
-              validate: { nickname: prevState.validate.nickname, email: prevState.validate.email, ipAdress: true },
-              nickname: '',
-              email: '',
-              ipAdress: '',
-              allUsers: newArrayUsers,
-              ipAdressProblem: 'Ip adress ok',
-            }))
-            newArrayUsers.push(newObject);
-          } else {
-            //ipAdress problems
-            this.setState(prevState => ({
-              validate: { nickname: prevState.validate.nickname, email: prevState.validate.email, ipAdress: false },
-              ipAdressProblem: 'Nieodpowiedni format adresu IP',
-            }))
-          }
-        } else {
-          //email problems
-          let emailFail = '';
-          if (isEmailBusy) {
-            if (email.includes('@')) {
-              if (email.includes('.')) {
-                if (email.length >= 5) {
-                  if (email.length > dotValidation + 1) {
 
-                    emailFail = 'Zła końcówka';
-                  } else {
-                    emailFail = 'Brak końcówki';
-                  }
-                } else {
-                  emailFail = 'Adres email jest za krótki';
-                }
-              } else {
-                emailFail = 'Brak kropki w adresie email';
-              }
-            } else {
-              emailFail = 'Brak @ w adresie email';
-            }
-          } else {
-            emailFail = 'Adres email jest zajęty';
-          }
-          this.setState(prevState => ({
-            validate: { nickname: prevState.validate.nickname, email: false, ipAdress: prevState.validate.ipAdress },
-            emailProblem: emailFail,
-          }))
-        }
+
       } else {
-        //nickname problems
-        this.setState(prevState => ({
-          validate: { nickname: false, email: prevState.validate.email, ipAdress: prevState.validate.ipAdress },
-        }))
+
+        for (let i = 0; i < this.state.allUsers.length; i++) {
+          if (nickname.toLowerCase() === this.state.allUsers[i].nickname.toLowerCase()) {
+            nicknameError = 'Nickname zajęty';
+            nicknameValidation = false;
+          }
+        }
       }
 
+    } else if (nickname.length === 0) {
+      nicknameError = 'Wpisz nickname';
+      nicknameValidation = false;
+    } else {
+      nicknameError = 'Nickname za krótki';
+      nicknameValidation = false;
+    }
+    //END NICKNAME
+    //EMAIL
+    let emailError = '';
+    let emailValidation = false;
+    const dotValidation = email.lastIndexOf('.');
+
+    if (email.length > 5) {
+      if (email.includes('@')) {
+        if (email.includes('.')) {
+          if (email.length === dotValidation + 3 || email.length === dotValidation + 4) {
+            emailError = 'Email ok';
+            emailValidation = true;
+          } else if (email.length === dotValidation + 2 || email.length > dotValidation + 4) {
+            emailError = 'Zła końcówka'
+            emailValidation = false;
+          } else {
+            emailError = 'Brak końcówki';
+            emailValidation = false;
+          }
+        } else {
+          emailError = 'Brak kropki w adresie email';
+          emailValidation = false;
+        }
+      } else {
+        emailError = 'Brak @ w adresie email';
+        emailValidation = false;
+      }
+
+      for (let i = 0; i < this.state.allUsers.length; i++) {
+        if (email.toLowerCase() === this.state.allUsers[i].email.toLowerCase()) {
+          emailError = 'Email zajęty';
+          emailValidation = false;
+        }
+      }
+    } else if (email.length === 0) {
+      emailError = 'Wpisz Email';
+      emailValidation = false;
+    } else {
+      emailError = 'Email jest za krótki';
+      emailValidation = false;
+    }
+    //END EMAIL
+    //IP ADRESS
+    let ipAdressError = '';
+    let ipAdressValidation = false;
+    const ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (ipAdress.length !== 0) {
+
+      if (ipAdress.match(ipformat)) {
+        ipAdressError = 'Adres IP ok';
+        ipAdressValidation = true;
+
+        for (let i = 0; i < this.state.allUsers.length; i++) {
+          if (ipAdress.toLowerCase() === this.state.allUsers[i].ipAdress.toLowerCase()) {
+            ipAdressError = 'IP zajęty';
+            ipAdressValidation = false;
+          }
+        }
+      } else {
+        ipAdressError = 'Zły format adresu IP';
+      }
+    } else {
+      ipAdressError = 'Wpisz adres IP';
+      ipAdressValidation = false;
+    }
+    //END IP ADRESS
+
+    if (nicknameValidation && emailValidation && ipAdressValidation) {
+      let newObject = {
+        id: arrayUsers.length,
+        nickname: nickname,
+        email: email,
+        ipAdress: ipAdress,
+      }
+      arrayUsers.push(newObject);
+      this.setState({
+        nickname: '',
+        email: '',
+        ipAdress: '',
+        validateError: { nickname: '', email: '', ipAdress: '' },
+        validate: { nickname: nicknameValidation, email: emailValidation, ipAdress: ipAdressValidation },
+      })
+    } else {
+      this.setState({
+        validateError: { nickname: nicknameError, email: emailError, ipAdress: ipAdressError },
+        validate: { nickname: nicknameValidation, email: emailValidation, ipAdress: ipAdressValidation },
+      })
     }
   }
 
@@ -142,15 +175,18 @@ export default class App extends React.Component {
   }
 
   render() {
-    console.log(this.state.emailProblem)
+    const { ipAdress, email, nickname, validateError } = this.state;
+
     return (
       <div className="container">
         <FormIp
-          nickname={this.state.nickname}
-          email={this.state.email}
-          ipAdress={this.state.ipAdress}
+          nickname={nickname}
+          email={email}
+          ipAdress={ipAdress}
           handleChange={this.handleChange}
-          handleAddToArray={this.handleAddToArray}
+          handleOnSubmit={this.handleOnSubmit}
+          validateError={validateError}
+
         />
         {CreateTable(this.state.allUsers, this.handleDeleteUser)}
       </div>
@@ -160,14 +196,39 @@ export default class App extends React.Component {
 
 
 const FormIp = props => {
-  const { nickname, email, ipAdress, handleChange, handleAddToArray } = props;
+  const { nickname, email, ipAdress, handleChange, handleOnSubmit, validateError } = props;
+
   return (
     <>
-      <form onSubmit={handleAddToArray}>
-        <input type="text" name={'nickname'} value={nickname} onChange={handleChange} /><br />
-        <input name={'email'} value={email} onChange={handleChange} /><br />
-        <input type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} /><br />
-        <button>Add user</button>
+      <form onSubmit={handleOnSubmit}>
+        <label htmlFor="nickname" className="row">
+          <div className="col-12">
+            Nickname:
+          </div>
+          <div className="col-12">
+            <input id="nickname" type="text" name={'nickname'} value={nickname} onChange={handleChange} />
+            {validateError.nickname}
+          </div>
+        </label>
+        <label htmlFor="email" className="row">
+          <div className="col-12">
+            Email:
+          </div>
+          <div className="col-12">
+            <input id="email" name={'email'} value={email} onChange={handleChange} className="green" />
+            {validateError.email}
+          </div>
+        </label>
+        <label htmlFor="ipAdress" className="row">
+          <div className="col-12">
+            IP adress:
+          </div>
+          <div className="col-12">
+            <input id="ipAdress" type="text" name={'ipAdress'} value={ipAdress} onChange={handleChange} />
+            {validateError.ipAdress}
+          </div>
+        </label>
+        <button type="submit">Add user</button>
       </form>
     </>
   )
