@@ -157,9 +157,13 @@ export default class App extends React.Component {
 
       let newArray = arrayUsers;
       newArray.push(newObject);
-
+      //SORT ARRAY
+      let sort = newArray.sort((a, b) => {
+        return (a.nickname.toLowerCase() > b.nickname.toLowerCase()) ? 1 : -1;
+      });;
+      //END SORT ARRAY
       this.setState({
-        allUsers: newArray,
+        allUsers: sort,
         nickname: '',
         email: '',
         ipAdress: '',
@@ -211,22 +215,23 @@ export default class App extends React.Component {
 
   handleDeleteAll = () => {
     arrayUsers = [];
-    this.setState({
+    this.setState(prevState => ({
       allUsers: arrayUsers,
-    })
+      deleteAll: !prevState.deleteAll,
+    }))
   }
 
 
   handleSelectDeleteAll = () => {
     this.setState(prevState => ({
-      deleteAll: !prevState.deleteAll
+      deleteAll: !prevState.deleteAll,
     }))
   }
 
 
   handleNoDeleteAll = () => {
     this.setState(prevState => ({
-      deleteAll: !prevState.deleteAll
+      deleteAll: !prevState.deleteAll,
     }))
   }
 
